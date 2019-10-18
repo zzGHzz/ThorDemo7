@@ -24,7 +24,10 @@ function getSolcABI(file: string): string {
 
     str = '======='
     p = o.search(str);
-    if (p) { o = o.slice(0, p-1); }
+    if (p) { o = o.slice(0, p); }
+
+    o.replace(/^[^\[]*\[/, '[');
+    o.replace(/\][^\]]*$/, ']');
 
     return o;
 }
@@ -64,7 +67,7 @@ function getSolcBinRuntime(file: string): string {
 function numToHexStr(num: number): string {
     const flooredNum = Math.floor(num);
 
-    if (flooredNum <= Number.MIN_SAFE_INTEGER) {
+    if (flooredNum <= Number.MAX_SAFE_INTEGER) {
         return flooredNum.toString(16);
     }
     return "0x" + new BN('' + flooredNum).toString(16);

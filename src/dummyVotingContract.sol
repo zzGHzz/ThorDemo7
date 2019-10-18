@@ -1,10 +1,4 @@
-pragma solidity >= 0.5.11;
-
-// interface Executor {
-//     function propose(address _target, bytes calldata _data) external returns(bytes32);
-// }
-
-import "./executor.sol";
+pragma solidity >= 0.5.0;
 
 contract DummyVotingContract {
     struct Vote {
@@ -13,8 +7,8 @@ contract DummyVotingContract {
         bool result;
         bytes data;
     }
-    address executor;
-    mapping(bytes32 => Vote) votes;
+    address public executor;
+    mapping(bytes32 => Vote) public votes;
 
     constructor(address _executor) public {
         require(uint160(_executor) > 0, "Zero Executor address!");
@@ -34,25 +28,41 @@ contract DummyVotingContract {
         emit Tally(voteID);
     }
 
-    function execute(bytes32 voteID) public returns(bytes32 proposalID) {
+    function execute(bytes32 voteID) public returns(bytes32) {
         require(uint160(votes[voteID].targetContract) > 0, "VoteID does not exist!");
 
         if(votes[voteID].result) {
-            proposalID = Executor(executor).propose(votes[voteID].targetContract, votes[voteID].data);
-            votes[voteID].proposalID = proposalID;
-            emit Execute(voteID, proposalID);
+            (bool success, bytes memory returnData) = executor.call(
+                abi.encodeWithSignature("propose(address,bytes)",votes[voteID].targetContract,votes[voteID].data));
+
+            if(success) {
+                bytes32 proposalID = bytesToBytes32(returnData);
+                votes[voteID].proposalID = proposalID;
+                emit Execute(voteID, proposalID);
+            }
+            else
+                revert("Execution failed");
         }
     }
 
-    function getTarget(bytes32 voteID) public view returns(address) {
-        require(uint160(votes[voteID].targetContract) > 0, "VoteID does not exist!");
-        return votes[voteID].targetContract;
+    function bytesToBytes32(bytes memory b) private pure returns (bytes32) {
+        bytes32 out;
+        if(b.length >= 32)
+            for (uint i = 0; i < 32; i++) {
+                out |= bytes32(b[i] & 0xFF) >> (i * 8);
+            }
+        else {
+            uint n = 32 - b.length;
+            for (uint i = 0; i < b.length; i++) {
+                out |= bytes32(b[i] & 0xFF) >> ((i+n) * 8);
+            }
+        }
+        return out;
     }
-
-    function getVoteResult(bytes32 voteID) public view returns(bool) {
-        require(uint160(votes[voteID].targetContract) > 0, "VoteID does not exist!");
-        return votes[voteID].result;
-    }
+    
+    // function test(bytes memory b) public pure returns(bytes32) {
+    //     return bytesToBytes32(b);
+    // }
 
     event Init(bytes32 indexed voteID);
     event Tally(bytes32 indexed voteID);

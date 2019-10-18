@@ -1,8 +1,8 @@
 /// <reference types="@vechain/connex" />
 
 import { abi as ABI } from 'thor-devkit';
-import { isByte32 } from './utils';
-import { to } from 'await-to-js';
+import { isByte32, isHex } from './utils';
+// import { to } from 'await-to-js';
 
 /**
  * Decode EVENT data (output by RECEIPT)
@@ -41,32 +41,27 @@ function encodeABI(abi: object, ...params: any[]): string {
 }
 
 /**
- * Try to get RECEIPT within a certain amount of time (in blocks) 
+ * Get transaction receipt
  * 
- * @param connex 
+ * @param connex
+ * @param timeout - counted in block 
  * @param txid 
- * @param nblock - maximal number of blocks
  */
-async function getReceipt(connex: Connex, txid: string, nblock: number): Promise<Connex.Thor.Receipt> {
-    if (!isByte32(txid)) { throw "Invalid txid!"; }
+async function getReceipt(
+    connex: Connex, timeout: number, txid: string
+): Promise<Connex.Thor.Receipt> {
+    if (!isByte32(txid)) throw new Error("Invalid txid!");
 
     const ticker = connex.thor.ticker();
-    const n = nblock >= 1 ? Math.floor(nblock) : 1;
-
-    let receipt: Connex.Thor.Receipt, err: Error;
+    const n = timeout >= 1 ? Math.floor(timeout) : 1;
 
     for (let i = 0; i < n; i++) {
-        await ticker.next();
-
-        [err, receipt] = await to(connex.thor.transaction(txid).getReceipt());
-        if (err) { continue; }
-
-        if (receipt.reverted) { throw "TX reverted!"; }
-
-        return new Promise((resolve, _) => { resolve(receipt); });
+        const receipt = await connex.thor.transaction(txid).getReceipt();
+        if (!receipt) { await ticker.next(); continue; }
+        if (receipt.reverted) throw "TX Reverted! - txid: " + txid;
+        return receipt;
     }
-
-    throw "Failed to get receipt!";
+    throw new Error("Time out!");
 }
 
 async function deployContract(
@@ -75,7 +70,7 @@ async function deployContract(
     abi?: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
     if (!connex) { throw new Error("Empty connex!"); }
-    
+
     let data = bytecode;
     if (abi) {
         data = data + encodeABI(abi, ...params).slice(2);
@@ -85,27 +80,57 @@ async function deployContract(
     signingService.signer(signer).gas(gas);
     return signingService.request([{
         to: null,
-        value: typeof(value) === 'string' ? value : Math.floor(value),
+        value: typeof (value) === 'string' ? value : Math.floor(value),
         data: data
     }]);
 }
 
-async function contractCallWithTx(
+/**
+ * Call contract function through transaction
+ * 
+ * @param connex 
+ * @param signer 
+ * @param gas 
+ * @param contractAddr 
+ * @param value 
+ * @param abi 
+ * @param params 
+ */
+function contractCallWithTx(
     connex: Connex, signer: string, gas: number,
     contractAddr: string, value: number | string,
     abi: object, ...params: any[]
 ): Promise<Connex.Vendor.TxResponse> {
     if (!connex) { throw new Error("Empty connex!"); }
     if (!abi) { throw new Error("Empty ABI!") }
+    if (typeof value === 'string' && !isHex(value)) { throw new Error("Invalid value!"); }
 
     const signingService = connex.vendor.sign('tx');
     signingService.signer(signer).gas(Math.floor(gas));
     const data = encodeABI(abi, ...params);
     return signingService.request([{
-        to: contractAddr, 
-        value: typeof(value) === 'string' ? value : Math.floor(value), 
+        to: contractAddr,
+        value: typeof value === 'string' ? value : Math.floor(value),
         data: data
     }]);
+}
+
+/**
+ * Call view/pure contract function
+ * 
+ * @param connex 
+ * @param contractAddr 
+ * @param abi 
+ * @param params 
+ */
+function contractCall(
+    connex: Connex,
+    contractAddr: string,
+    abi: object, ...params: any[]
+): Promise<Connex.Thor.VMOutput> {
+    if (!connex) { throw new Error("Empty connex!"); }
+    if (!abi) { throw new Error("Empty ABI!") }
+    return connex.thor.account(contractAddr).method(abi).call(...params);
 }
 
 export {
@@ -113,5 +138,7 @@ export {
     encodeABI,
     getReceipt,
     deployContract,
-    contractCallWithTx
+    contractCallWithTx,
+    contractCall
+    // getCallResult
 }
