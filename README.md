@@ -1,4 +1,4 @@
-# Demo of VeChainThor On-chain Governance - Changing a Network Parameter
+# Demo of VeChainThor On-chain Governance - Changing the Reward Ratio
 
 This demo simulates the on-chain goverance that change the network parameter `reward ratio`. The process consists of three steps: decision making, authorization and executation. The first step is carried out on-chain by an instance of `DummnyVotingContract` while the second two steps conducted also on-chain via the deployed built-in contract `Executor`. 
 
@@ -32,15 +32,18 @@ The demo shows step by step how to do the required on-chain operations (function
 
 ## Prerequisites
 
-This demo should be run on a customized version of VeChainThor. The definition of the network can be found in `./customChainConfig.json`. Related Thor-node commands can be found in `./cmd_local`.
-
-Note I added the following addtional lines in `customChainConfig.json` to allow the customized VeChainThor to be compatiable with the latest version of EVM.
+This demo should be run on a customized version of VeChainThor. Related Thor-node commands can be found in `./nodeLaunchCmd`. The definition of the network can be found in `./customChainConfig.json`. The following addtional lines are added to allow the customized VeChainThor to be compatiable with the latest version of EVM.
 ```
 "ForkConfig": {
     "ETH_CONST": 0
 }
 ```
 Basically, it tells the system from what height it has to switch to the latest version of EVM.
+
+YOU MUST REPLACE all the `authorityAddress` with the master addresses of the Thor node launched by you to make the demo work. The master address can be obtained by command:
+```
+thor master-key --config-dir <KEY_DIR>
+```
 
 Please refer to my previous article ['What you might not know about VeChainThor yet (Part V) - Customizing Your Own VeChainThor'](https://medium.com/@ziheng.zhou/what-you-might-not-know-about-vechainthor-yet-part-v-customizing-your-own-vechainthor-dd40a7667452) for details. 
 

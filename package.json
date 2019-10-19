@@ -1,21 +1,21 @@
 {
-  "name": "thordemo6",
+  "name": "thordemo7",
   "version": "1.0.0",
-  "description": "On-chain governance",
+  "description": "On-chain governance - changing the reward ratio",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zzGHzz/ThorDemo6.git"
+    "url": "git+https://github.com/zzGHzz/ThorDemo7.git"
   },
   "author": "Ziheng (Peter) Zhou",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zzGHzz/ThorDemo6/issues"
+    "url": "https://github.com/zzGHzz/ThorDemo7/issues"
   },
-  "homepage": "https://github.com/zzGHzz/ThorDemo6#readme",
+  "homepage": "https://github.com/zzGHzz/ThorDemo7#readme",
   "dependencies": {
     "@vechain/connex": "^1.4.0",
     "@vechain/connex-framework": "^1.1.1",
