@@ -11,7 +11,6 @@ contract DummyVotingContract {
     mapping(bytes32 => Vote) public votes;
 
     constructor(address _executor) public {
-        require(uint160(_executor) > 0, "Zero Executor address!");
         executor = _executor;
     }
 
@@ -30,19 +29,24 @@ contract DummyVotingContract {
 
     function execute(bytes32 voteID) public returns(bytes32) {
         require(uint160(votes[voteID].targetContract) > 0, "VoteID does not exist!");
+        require(votes[voteID].result, "Vote has not been passed!");
+        require(uint256(votes[voteID].proposalID) == 0, "Vote has been executed!");
 
-        if(votes[voteID].result) {
-            (bool success, bytes memory returnData) = executor.call(
-                abi.encodeWithSignature("propose(address,bytes)",votes[voteID].targetContract,votes[voteID].data));
+        (bool success, bytes memory returnData) = executor.call(
+            abi.encodeWithSignature("propose(address,bytes)",votes[voteID].targetContract,votes[voteID].data)
+        );
 
-            if(success) {
-                bytes32 proposalID = bytesToBytes32(returnData);
-                votes[voteID].proposalID = proposalID;
-                emit Execute(voteID, proposalID);
-            }
-            else
-                revert("Execution failed");
+        if(success) {
+            bytes32 proposalID = bytesToBytes32(returnData);
+
+            require(uint256(proposalID) > 0, "Executor.call failed!");
+
+            votes[voteID].proposalID = proposalID;
+            emit Execute(voteID, proposalID);
+            return proposalID;
         }
+
+        revert("Execution failed");
     }
 
     function bytesToBytes32(bytes memory b) private pure returns (bytes32) {
@@ -59,10 +63,6 @@ contract DummyVotingContract {
         }
         return out;
     }
-    
-    // function test(bytes memory b) public pure returns(bytes32) {
-    //     return bytesToBytes32(b);
-    // }
 
     event Init(bytes32 indexed voteID);
     event Tally(bytes32 indexed voteID);

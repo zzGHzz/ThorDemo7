@@ -73,7 +73,7 @@ async function deployContract(
 
     let data = bytecode;
     if (abi) {
-        data = data + encodeABI(abi, ...params).slice(2);
+        data = data + encodeABI(abi, ...params).slice(10);
     }
 
     const signingService = connex.vendor.sign('tx');
