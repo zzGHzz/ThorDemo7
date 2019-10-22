@@ -1,6 +1,6 @@
 # Demo of VeChainThor On-chain Governance - Changing the Reward Ratio
 
-This demo simulates the on-chain goverance that change the network parameter `reward ratio`. The process consists of three steps: decision making, authorization and executation. The first step is carried out on-chain by an instance of `DummnyVotingContract` while the second two steps conducted also on-chain via the deployed built-in contract `Executor`. 
+This demo simulates the on-chain governance that change the network parameter `reward ratio`. The process consists of three steps: decision making, authorization and execution. The first step is carried out on-chain by an instance of `DummnyVotingContract` while the second two steps conducted also on-chain via the deployed built-in contract `Executor`. 
 
 The demo shows step by step how to do the required on-chain operations (functions that implement the operations are shown in brackets):
  
