@@ -32,7 +32,7 @@ The demo shows step by step how to do the required on-chain operations (function
 
 ## Prerequisites
 
-This demo should be run on a customized version of VeChainThor. Related Thor-node commands can be found in `./nodeLaunchCmd`. The definition of the network can be found in `./customChainConfig.json`. The following addtional lines are added to allow the customized VeChainThor to be compatiable with the latest version of EVM.
+This demo should be run on a customized version of VeChainThor. Related Thor-node commands can be found in `./nodeLaunchCmd`. The definition of the network can be found in `./customChainConfig.json`. The following lines are added to allow the customized VeChainThor to be compatible with the latest version of EVM released in Ethereum Constantinople.
 ```
 "ForkConfig": {
     "ETH_CONST": 0
