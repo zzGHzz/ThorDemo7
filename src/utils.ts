@@ -11,10 +11,14 @@ function exec(cmd: string, ...params: string[]): string {
     return stdout;
 }
 
-function getSolcABI(file: string): string {
+function getSolcABI(file: string, contractName: string): string {
     let o = exec('solc', '--abi', file);
     let p = o.search(file);
     if (!p) { throw new Error('solc output format err'); }
+    o = o.slice(p);
+
+    p = o.search(file + ':' + contractName);
+    if (p == -1) throw new Error('Contract not found!');
     o = o.slice(p);
 
     let str = 'Contract JSON ABI';
@@ -70,7 +74,7 @@ function numToHexStr(num: number, hexLen?: number): string {
 
     if (flooredNum <= Number.MAX_SAFE_INTEGER)
         h = flooredNum.toString(16);
-    else 
+    else
         h = new BN('' + flooredNum).toString(16);
 
     if (hexLen) {
