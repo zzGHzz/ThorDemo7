@@ -13,11 +13,8 @@ function exec(cmd: string, ...params: string[]): string {
 
 function getSolcABI(file: string, contractName: string): string {
     let o = exec('solc', '--abi', file);
-    let p = o.search(file);
-    if (p == -1) { throw new Error('solc output format err'); }
-    o = o.slice(p);
-
-    p = o.search(file + ':' + contractName);
+    
+    let p = o.search(file + ':' + contractName);
     if (p == -1) throw new Error('Contract not found!');
     o = o.slice(p);
 
@@ -36,18 +33,23 @@ function getSolcABI(file: string, contractName: string): string {
     return o;
 }
 
-function getSolcBin(file: string): string {
+function getSolcBin(file: string, contractName: string): string {
     let o = exec('solc', '--bin', file);
-    let p = o.search(file);
-    if (p == -1) throw new Error('solc output format err');
+
+    let p = o.search(file + ':' + contractName);
+    if (p == -1) throw new Error('Contract not found!');
     o = o.slice(p);
-    const str = 'Binary:';
+    
+    let str = 'Binary:';
     p = o.search(str);
     if (p == -1) throw new Error('solc output format err');
     o = o.slice(p + str.length);
 
+    str = '======='
+    p = o.search(str);
+    if (p != -1) { o = o.slice(0, p); }
+
     const bin = o.match(/[0-9a-f]+/i);
-    if (p == -1) throw new Error('solc output format err');
 
     return '0x' + bin[0];
 }
