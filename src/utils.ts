@@ -14,7 +14,7 @@ function exec(cmd: string, ...params: string[]): string {
 function getSolcABI(file: string, contractName: string): string {
     let o = exec('solc', '--abi', file);
     let p = o.search(file);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p == -1) { throw new Error('solc output format err'); }
     o = o.slice(p);
 
     p = o.search(file + ':' + contractName);
@@ -23,12 +23,12 @@ function getSolcABI(file: string, contractName: string): string {
 
     let str = 'Contract JSON ABI';
     p = o.search(str);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p == -1) { throw new Error('solc output format err'); }
     o = o.slice(p + str.length + 2);
 
     str = '======='
     p = o.search(str);
-    if (p) { o = o.slice(0, p); }
+    if (p != -1) { o = o.slice(0, p); }
 
     o.replace(/^[^\[]*\[/, '[');
     o.replace(/\][^\]]*$/, ']');
@@ -39,15 +39,15 @@ function getSolcABI(file: string, contractName: string): string {
 function getSolcBin(file: string): string {
     let o = exec('solc', '--bin', file);
     let p = o.search(file);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p == -1) throw new Error('solc output format err');
     o = o.slice(p);
     const str = 'Binary:';
     p = o.search(str);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p == -1) throw new Error('solc output format err');
     o = o.slice(p + str.length);
 
     const bin = o.match(/[0-9a-f]+/i);
-    if (!p) { throw new Error('solc output format err'); }
+    if (p == -1) throw new Error('solc output format err');
 
     return '0x' + bin[0];
 }
