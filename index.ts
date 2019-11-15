@@ -6,7 +6,7 @@ import {
     getBuiltinABI,
     paramsAddr,
     authorityAddr
-} from './src/built-in';
+} from 'myvetools/dist/builtin';
 
 import {
     approvers,
@@ -20,7 +20,7 @@ import {
 
 import {
     getABI
-} from './src/utils';
+} from 'myvetools/dist/utils';
 
 import {
     decodeEvent,
@@ -29,7 +29,7 @@ import {
     deployContract,
     contractCallWithTx,
     contractCall
-} from './src/connexUtils';
+} from 'myvetools/dist/connexutils';
 
 /**
  * Main process  

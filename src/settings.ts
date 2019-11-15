@@ -3,7 +3,7 @@ import {
     getSolcABI,
     numToHexStr,
     strToHexStr
-} from './utils';
+} from 'myvetools/dist/utils';
 
 const masterNodes = [
     '0x929710d206f0e1133f353553353de5bc80c8460b',
